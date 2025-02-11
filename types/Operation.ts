@@ -6,6 +6,6 @@ export interface Operation {
     type: OperationType;
     currency: Currency;
     amount: number;
-    fee: number;
+    commissionValue: number;
     date: Date;
 }
