@@ -16,17 +16,17 @@ export class Account {
 
     public deposit(
         amount: number,
-        commissionValue: number,
+        commission: number,
         opType: OperationType = OperationType.DEPOSIT
     ): Operation {
-        const totalDeposit = amount - commissionValue;
+        const totalDeposit = amount - commission;
         this.balance += totalDeposit;
         const op: Operation = {
             id: generateID(),
             type: opType,
             currency: this.currency,
             amount,
-            commissionValue,
+            commission,
             date: new Date()
         };
         this.operations.push(op);
@@ -35,20 +35,20 @@ export class Account {
 
     public withdraw(
         amount: number,
-        commissionValue: number,
+        commission: number,
         opType: OperationType = OperationType.WITHDRAWAL
     ): Operation {
-        const totalWithdraw = amount + commissionValue;
+        const totalWithdraw = amount + commission;
         if (totalWithdraw > this.balance) {
             throw new Error("Insufficient funds in the account.");
-        }
+        };
         this.balance -= totalWithdraw;
         const op: Operation = {
             id: generateID(),
             type: opType,
             currency: this.currency,
             amount,
-            commissionValue,
+            commission,
             date: new Date()
         };
         this.operations.push(op);
