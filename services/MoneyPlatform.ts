@@ -6,6 +6,7 @@ export class MoneyPlatform {
 
     private users: Map<string, User>;
     private commissionRate: number = 0.05;
+    private profit: Record<OperationType, Record<Currency, number>>;
 
     createUser(userId: string): User {
         if (this.users.has(userId)) {
@@ -22,7 +23,14 @@ export class MoneyPlatform {
             throw new Error(`Could not find user with ID ${userId}`);
         }
         return user;
-    }
+    };
+
+    addProfit(opType: OperationType, curr: Currency, commision: number) {
+        if (!this.profit[opType]) {
+            this.profit[opType] = { PLN: 0, EUR: 0, USD: 0 };
+        };
+        this.profit[opType][curr] += commision;
+    };
 
     deposit(userId: string, currency: Currency, amount: number): Operation {
         if (amount <= 0) {
@@ -30,8 +38,9 @@ export class MoneyPlatform {
         }
         const user = this.getUser(userId);
         const account = user.getAccount(currency);
-        const commissionValue = amount * this.commissionRate;
-        const operation = account.deposit(amount, commissionValue, OperationType.DEPOSIT);
+        const commission = amount * this.commissionRate;
+        const operation = account.deposit(amount, commission, OperationType.DEPOSIT);
+        this.addProfit(OperationType.DEPOSIT, currency, commission);
         return operation;
     };
 
@@ -41,8 +50,9 @@ export class MoneyPlatform {
         }
         const user = this.getUser(userId);
         const account = user.getAccount(currency);
-        const commissionValue = amount * this.commissionRate;
-        const operation = account.withdraw(amount, commissionValue, OperationType.WITHDRAWAL);
+        const commission = amount * this.commissionRate;
+        const operation = account.withdraw(amount, commission, OperationType.WITHDRAWAL);
+        this.addProfit(OperationType.WITHDRAWAL, currency, commission);
         return operation;
     };
 };
