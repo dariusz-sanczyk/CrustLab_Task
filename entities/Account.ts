@@ -4,9 +4,9 @@ import { OperationType } from "../types/OperationType";
 import { generateID } from "../utils/generateID";
 
 export class Account {
-    currency: Currency;
-    balance: number;
-    operations: Operation[];
+    public currency: Currency;
+    public balance: number;
+    public operations: Operation[];
 
     constructor(currency: Currency) {
         this.currency = currency;
@@ -14,7 +14,7 @@ export class Account {
         this.operations = [];
     };
 
-    deposit(
+    public deposit(
         amount: number,
         commissionValue: number,
         opType: OperationType = OperationType.DEPOSIT
@@ -33,7 +33,7 @@ export class Account {
         return op;
     };
 
-    withdraw(
+    public withdraw(
         amount: number,
         commissionValue: number,
         opType: OperationType = OperationType.WITHDRAWAL

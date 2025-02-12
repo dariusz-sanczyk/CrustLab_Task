@@ -2,8 +2,8 @@ import { Currency } from "../types/Currency.enum";
 import { Account } from "./Account";
 
 export class User {
-    id: string;
-    accounts: Map<Currency, Account>;
+    public id: string;
+    public accounts: Map<Currency, Account>;
 
     constructor(id: string) {
         this.id = id;
@@ -13,7 +13,7 @@ export class User {
         };
     };
 
-    getAccount(currency: Currency): Account {
+    public getAccount(currency: Currency): Account {
         const account = this.accounts.get(currency);
         if (!account) {
             throw new Error(`Could not find ${currency} account.`);

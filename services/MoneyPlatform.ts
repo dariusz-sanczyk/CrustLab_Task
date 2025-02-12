@@ -7,8 +7,9 @@ export class MoneyPlatform {
     private users: Map<string, User>;
     private commissionRate: number = 0.05;
     private profit: Record<OperationType, Record<Currency, number>>;
+    private allOperations: Operation[] = [];
 
-    createUser(userId: string): User {
+    public createUser(userId: string): User {
         if (this.users.has(userId)) {
             throw new Error(`User with ID ${userId} already exists.`);
         }
@@ -17,7 +18,7 @@ export class MoneyPlatform {
         return user;
     };
 
-    getUser(userId: string): User {
+    private getUser(userId: string): User {
         const user = this.users.get(userId);
         if (!user) {
             throw new Error(`Could not find user with ID ${userId}`);
@@ -25,14 +26,23 @@ export class MoneyPlatform {
         return user;
     };
 
-    addProfit(opType: OperationType, curr: Currency, commision: number) {
+    public getAccountBalance(userId: string, currency: Currency): number {
+        const user = this.getUser(userId);
+        return user.getAccount(currency).balance;
+    };
+
+    private addProfit(opType: OperationType, curr: Currency, commision: number) {
         if (!this.profit[opType]) {
             this.profit[opType] = { PLN: 0, EUR: 0, USD: 0 };
         };
         this.profit[opType][curr] += commision;
     };
 
-    deposit(userId: string, currency: Currency, amount: number): Operation {
+    public getProfit(): Record<OperationType, Record<Currency, number>> {
+        return this.profit;
+    };
+
+    public deposit(userId: string, currency: Currency, amount: number): Operation {
         if (amount <= 0) {
             throw new Error("The deposit value must be greater then 0.");
         }
@@ -41,10 +51,11 @@ export class MoneyPlatform {
         const commission = amount * this.commissionRate;
         const operation = account.deposit(amount, commission, OperationType.DEPOSIT);
         this.addProfit(OperationType.DEPOSIT, currency, commission);
+        this.allOperations.push(operation);
         return operation;
     };
 
-    withdraw(userId: string, currency: Currency, amount: number): Operation {
+    public withdraw(userId: string, currency: Currency, amount: number): Operation {
         if (amount <= 0) {
             throw new Error("The withdraw value must be greater then 0.");
         }
@@ -53,6 +64,7 @@ export class MoneyPlatform {
         const commission = amount * this.commissionRate;
         const operation = account.withdraw(amount, commission, OperationType.WITHDRAWAL);
         this.addProfit(OperationType.WITHDRAWAL, currency, commission);
+        this.allOperations.push(operation);
         return operation;
     };
 };
