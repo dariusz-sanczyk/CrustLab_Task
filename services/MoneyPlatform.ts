@@ -19,10 +19,14 @@ export class MoneyPlatform {
         this.profit = {
             [OperationType.DEPOSIT]: { PLN: 0, EUR: 0, USD: 0 },
             [OperationType.WITHDRAWAL]: { PLN: 0, EUR: 0, USD: 0 },
-            [OperationType.TRANSFER]: { PLN: 0, EUR: 0, USD: 0 },
-            [OperationType.EXCHANGE]: { PLN: 0, EUR: 0, USD: 0 }
+            [OperationType.TRANSFER_OUT]: { PLN: 0, EUR: 0, USD: 0 },
+            [OperationType.TRANSFER_IN]: { PLN: 0, EUR: 0, USD: 0 },
+            [OperationType.EXCHANGE_OUT]: { PLN: 0, EUR: 0, USD: 0 },
+            [OperationType.EXCHANGE_IN]: { PLN: 0, EUR: 0, USD: 0 },
         };
     };
+
+    // User methods
 
     public createUser(userId: string): User {
         if (this.users.has(userId)) {
@@ -46,6 +50,8 @@ export class MoneyPlatform {
         return user.getAccount(currency).balance;
     };
 
+    //  Profit methods
+
     private addProfit(opType: OperationType, curr: Currency, commision: number) {
         if (!this.profit[opType]) {
             this.profit[opType] = { PLN: 0, EUR: 0, USD: 0 };
@@ -56,6 +62,8 @@ export class MoneyPlatform {
     public getProfit(): Record<OperationType, Record<Currency, number>> {
         return this.profit;
     };
+
+    //  Operations methods
 
     public deposit(userId: string, currency: Currency, amount: number): Operation {
         if (amount <= 0) {
@@ -81,5 +89,36 @@ export class MoneyPlatform {
         this.addProfit(OperationType.WITHDRAWAL, currency, commission);
         this.allOperations.push(operation);
         return operation;
+    };
+
+    transfer(
+        sourceUserId: string,
+        targetUserId: string,
+        currency: Currency,
+        amount: number
+    ): { fromOperation: Operation; toOperation: Operation } {
+        if (amount <= 0) {
+            throw new Error("transfer value must be greater then 0.");
+        };
+        const sourceUser = this.getUser(sourceUserId);
+        const targetUser = this.getUser(targetUserId);
+        const fromAccount = sourceUser.getAccount(currency);
+        const toAccount = targetUser.getAccount(currency);
+        const commission = amount * this.commissionRate;
+        const fromOperation = fromAccount.withdraw(
+            amount,
+            commission,
+            OperationType.TRANSFER_OUT,
+            { targetUser: targetUserId }
+        );
+        const toOperation = toAccount.deposit(
+            amount,
+            0,
+            OperationType.TRANSFER_IN,
+            { sourceUser: sourceUserId }
+        );
+        this.allOperations.push(fromOperation, toOperation);
+        this.addProfit(OperationType.TRANSFER_OUT, currency, commission);
+        return { fromOperation, toOperation };
     };
 };

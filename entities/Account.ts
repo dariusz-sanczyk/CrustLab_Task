@@ -17,7 +17,8 @@ export class Account {
     public deposit(
         amount: number,
         commission: number,
-        opType: OperationType = OperationType.DEPOSIT
+        opType: OperationType = OperationType.DEPOSIT,
+        additionalInfo?: any
     ): Operation {
         const totalDeposit = amount - commission;
         this.balance += totalDeposit;
@@ -27,7 +28,8 @@ export class Account {
             currency: this.currency,
             amount,
             commission,
-            date: new Date()
+            date: new Date(),
+            additionalInfo: additionalInfo || {}
         };
         this.operations.push(op);
         return op;
@@ -36,7 +38,8 @@ export class Account {
     public withdraw(
         amount: number,
         commission: number,
-        opType: OperationType = OperationType.WITHDRAWAL
+        opType: OperationType = OperationType.WITHDRAWAL,
+        additionalInfo?: any
     ): Operation {
         const totalWithdraw = amount + commission;
         if (totalWithdraw > this.balance) {
@@ -49,7 +52,8 @@ export class Account {
             currency: this.currency,
             amount,
             commission,
-            date: new Date()
+            date: new Date(),
+            additionalInfo: additionalInfo || {}
         };
         this.operations.push(op);
         return op;

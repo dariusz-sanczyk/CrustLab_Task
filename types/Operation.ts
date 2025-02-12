@@ -8,4 +8,5 @@ export interface Operation {
     amount: number;
     commission: number;
     date: Date;
-}
+    additionalInfo?: any;
+};
