@@ -66,7 +66,7 @@ export class MoneyPlatform {
         return this.profit;
     };
 
-    //  Operations methods
+    //  Account operations methods
 
     public deposit(userId: string, currency: Currency, amount: number): Operation {
         if (amount <= 0) {
@@ -173,5 +173,30 @@ export class MoneyPlatform {
     private convertCurrencies(from: Currency, to: Currency, amount: number): number {
         const valueInPLN = amount * this.exchangeRates[from];
         return valueInPLN / this.exchangeRates[to];
+    };
+
+    // History of operations methods
+
+    getFullOperationsHistory(filter: {
+        type?: OperationType;
+        currency?: Currency;
+        fromDate?: Date;
+        toDate?: Date;
+    } = {}): Operation[] {
+        return this.allOperations.filter((op) => {
+            if (filter.type && op.type !== filter.type) {
+                return false;
+            }
+            if (filter.currency && op.currency !== filter.currency) {
+                return false;
+            }
+            if (filter.fromDate && op.date < filter.fromDate) {
+                return false;
+            }
+            if (filter.toDate && op.date > filter.toDate) {
+                return false;
+            }
+            return true;
+        });
     };
 };
