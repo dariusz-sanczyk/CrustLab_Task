@@ -3,6 +3,7 @@ import { OperationType } from "./OperationType";
 
 export interface Operation {
     id: string;
+    userID: string;
     type: OperationType;
     currency: Currency;
     amount: number;

@@ -15,6 +15,7 @@ export class Account {
     };
 
     public deposit(
+        userID: string,
         amount: number,
         commission: number,
         opType: OperationType = OperationType.DEPOSIT,
@@ -24,6 +25,7 @@ export class Account {
         this.balance += totalDeposit;
         const op: Operation = {
             id: generateID(),
+            userID,
             type: opType,
             currency: this.currency,
             amount,
@@ -36,6 +38,7 @@ export class Account {
     };
 
     public withdraw(
+        userID: string,
         amount: number,
         commission: number,
         opType: OperationType = OperationType.WITHDRAWAL,
@@ -48,6 +51,7 @@ export class Account {
         this.balance -= totalWithdraw;
         const op: Operation = {
             id: generateID(),
+            userID,
             type: opType,
             currency: this.currency,
             amount,

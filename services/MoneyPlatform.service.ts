@@ -75,7 +75,7 @@ export class MoneyPlatform {
         const user = this.getUser(userId);
         const account = user.getAccount(currency);
         const commission = amount * this.commissionRate;
-        const operation = account.deposit(amount, commission, OperationType.DEPOSIT);
+        const operation = account.deposit(userId, amount, commission, OperationType.DEPOSIT);
         this.addProfit(OperationType.DEPOSIT, currency, commission);
         this.allOperations.push(operation);
         return operation;
@@ -88,7 +88,7 @@ export class MoneyPlatform {
         const user = this.getUser(userId);
         const account = user.getAccount(currency);
         const commission = amount * this.commissionRate;
-        const operation = account.withdraw(amount, commission, OperationType.WITHDRAWAL);
+        const operation = account.withdraw(userId, amount, commission, OperationType.WITHDRAWAL);
         this.addProfit(OperationType.WITHDRAWAL, currency, commission);
         this.allOperations.push(operation);
         return operation;
@@ -109,12 +109,14 @@ export class MoneyPlatform {
         const targetAccount = targetUser.getAccount(currency);
         const commission = amount * this.commissionRate;
         const fromOperation = sourceAccount.withdraw(
+            sourceUserId,
             amount,
             commission,
             OperationType.TRANSFER_OUT,
             { targetUser: targetUserId }
         );
         const toOperation = targetAccount.deposit(
+            targetUserId,
             amount,
             0,
             OperationType.TRANSFER_IN,
@@ -146,6 +148,7 @@ export class MoneyPlatform {
 
         const targetAccount = user.getAccount(toCurrency);
         const exchangeFrom = sourceAccount.withdraw(
+            userId,
             amount,
             0,
             OperationType.EXCHANGE_OUT,
@@ -156,13 +159,12 @@ export class MoneyPlatform {
         this.addProfit(OperationType.EXCHANGE_IN, toCurrency, commission);
         const netAmount = convertedAmount - commission;
         const exchangeTo = targetAccount.deposit(
-            netAmount,
-            0,
+            userId,
+            convertedAmount,
+            commission,
             OperationType.EXCHANGE_IN,
             {
                 sourceCurrency: fromCurrency,
-                originalAmount: amount,
-                commission,
                 netAmount: netAmount
             }
         );
