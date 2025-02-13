@@ -58,4 +58,23 @@ export class Account {
         this.operations.push(op);
         return op;
     };
-}
+
+    public getOperations(filter?: {
+        type?: OperationType;
+        fromDate?: Date;
+        toDate?: Date;
+    }): Operation[] {
+        return this.operations.filter((op) => {
+            if (filter?.type && op.type !== filter.type) {
+                return false;
+            };
+            if (filter?.fromDate && op.date < filter.fromDate) {
+                return false;
+            };
+            if (filter?.toDate && op.date > filter.toDate) {
+                return false;
+            };
+            return true;
+        });
+    };
+};

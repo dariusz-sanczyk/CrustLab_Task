@@ -177,7 +177,7 @@ export class MoneyPlatform {
 
     // History of operations methods
 
-    getFullOperationsHistory(filter: {
+    public getFullOperationsHistory(filter: {
         type?: OperationType;
         currency?: Currency;
         fromDate?: Date;
@@ -186,17 +186,26 @@ export class MoneyPlatform {
         return this.allOperations.filter((op) => {
             if (filter.type && op.type !== filter.type) {
                 return false;
-            }
+            };
             if (filter.currency && op.currency !== filter.currency) {
                 return false;
-            }
+            };
             if (filter.fromDate && op.date < filter.fromDate) {
                 return false;
-            }
+            };
             if (filter.toDate && op.date > filter.toDate) {
                 return false;
-            }
+            };
             return true;
         });
+    };
+
+    public getUserOperationsHistory(
+        userId: string,
+        currency: Currency,
+        filter?: { type?: OperationType; fromDate?: Date; toDate?: Date }
+    ): Operation[] {
+        const user = this.getUser(userId);
+        return user.getAccount(currency).getOperations(filter);
     };
 };
