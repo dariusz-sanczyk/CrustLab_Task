@@ -179,7 +179,7 @@ export class MoneyPlatform {
 
     // History of operations methods
 
-    public getFullOperationsHistory(filter: {
+    public getglobalHistory(filter: {
         type?: OperationType;
         currency?: Currency;
         fromDate?: Date;
