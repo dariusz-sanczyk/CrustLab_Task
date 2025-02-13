@@ -20,13 +20,13 @@ function runTests() {
     // User1 deposit 500 PLN – the commission is 10 PLN, net amount is 490 PLN
     const depositOp = platform.deposit("user1", Currency.PLN, 500);
     console.log("Deposit operation:", depositOp);
-    console.log("User1 PLN Balance after deposit:", platform.getAccountBalance("user1", Currency.PLN));
+    console.log("User1 PLN balance after deposit:", platform.getAccountBalance("user1", Currency.PLN));
     console.log("--------------------------------------------------");
 
     // User1 withdraw 100 PLN – the commission is 2 PLN, amount taken from account is 102 PLN
     const withdrawOp = platform.withdraw("user1", Currency.PLN, 100);
     console.log("Withdrawal operation:", withdrawOp);
-    console.log("User1 PLN Balance after withdrawal:", platform.getAccountBalance("user1", Currency.PLN));
+    console.log("User1 PLN balance after withdrawal:", platform.getAccountBalance("user1", Currency.PLN));
     console.log("--------------------------------------------------");
 
     // User1 trasnfer 100 PLN to User2.
@@ -40,8 +40,8 @@ function runTests() {
     );
     console.log("Transfer Out operation:", transferOut);
     console.log("Transfer In operation:", transferIn);
-    console.log("User1 PLN Balance after transfer:", platform.getAccountBalance("user1", Currency.PLN));
-    console.log("User2 PLN Balance after receiving transfer:", platform.getAccountBalance("user2", Currency.PLN));
+    console.log("User1 PLN balance after transfer:", platform.getAccountBalance("user1", Currency.PLN));
+    console.log("User2 PLN balance after receiving transfer:", platform.getAccountBalance("user2", Currency.PLN));
     console.log("--------------------------------------------------");
 
     // User1 exchange 50 EUR to USD.
@@ -56,8 +56,8 @@ function runTests() {
     );
     console.log("Exchange Out operation:", exchangeOut);
     console.log("Exchange In operation:", exchangeIn);
-    console.log("User1 EUR Balance after exchange:", platform.getAccountBalance("user1", Currency.EUR));
-    console.log("User1 USD Balance after exchange:", platform.getAccountBalance("user1", Currency.USD));
+    console.log("User1 EUR balance after exchange:", platform.getAccountBalance("user1", Currency.EUR));
+    console.log("User1 USD balance after exchange:", platform.getAccountBalance("user1", Currency.USD));
     console.log("--------------------------------------------------");
 
     // Retrieving global history for deposits.
@@ -76,7 +76,7 @@ function runTests() {
 
     // Retrieving profit information.
     const profit = platform.getProfit();
-    console.log("Platform Profit:", profit);
+    console.log("Platform profit:", profit);
     console.log("--------------------------------------------------");
 };
 

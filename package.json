@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "test": "npx ts-node src/tests/tests.ts"
+  },
   "devDependencies": {
     "ts-node": "^10.9.2"
   }
