@@ -2,14 +2,16 @@ import { User } from "../entities/User";
 import { Currency } from "../types/Currency.enum";
 import { Operation } from "../types/Operation";
 import { OperationType } from "../types/OperationType";
+import { ExchangeRates } from "../types/ExchangeRates";
 export class MoneyPlatform {
 
     private users: Map<string, User>;
     private commissionRate: number;
     private profit: Record<OperationType, Record<Currency, number>>;
     private allOperations: Operation[];
+    private exchangeRates: ExchangeRates;
 
-    constructor(commissionRate: number) {
+    constructor(commissionRate: number, exchangeRates: ExchangeRates) {
         if (commissionRate < 0) {
             throw new Error("Commission rate should be greater then 0.");
         };
@@ -24,6 +26,7 @@ export class MoneyPlatform {
             [OperationType.EXCHANGE_OUT]: { PLN: 0, EUR: 0, USD: 0 },
             [OperationType.EXCHANGE_IN]: { PLN: 0, EUR: 0, USD: 0 },
         };
+        this.exchangeRates = exchangeRates;
     };
 
     // User methods
@@ -91,7 +94,7 @@ export class MoneyPlatform {
         return operation;
     };
 
-    transfer(
+    public transfer(
         sourceUserId: string,
         targetUserId: string,
         currency: Currency,
@@ -102,16 +105,16 @@ export class MoneyPlatform {
         };
         const sourceUser = this.getUser(sourceUserId);
         const targetUser = this.getUser(targetUserId);
-        const fromAccount = sourceUser.getAccount(currency);
-        const toAccount = targetUser.getAccount(currency);
+        const sourceAccount = sourceUser.getAccount(currency);
+        const targetAccount = targetUser.getAccount(currency);
         const commission = amount * this.commissionRate;
-        const fromOperation = fromAccount.withdraw(
+        const fromOperation = sourceAccount.withdraw(
             amount,
             commission,
             OperationType.TRANSFER_OUT,
             { targetUser: targetUserId }
         );
-        const toOperation = toAccount.deposit(
+        const toOperation = targetAccount.deposit(
             amount,
             0,
             OperationType.TRANSFER_IN,
@@ -120,5 +123,55 @@ export class MoneyPlatform {
         this.allOperations.push(fromOperation, toOperation);
         this.addProfit(OperationType.TRANSFER_OUT, currency, commission);
         return { fromOperation, toOperation };
+    };
+
+    public exchange(
+        userId: string,
+        fromCurrency: Currency,
+        toCurrency: Currency,
+        amount: number
+    ): { exchangeFrom: Operation; exchangeTo: Operation } {
+        if (amount <= 0) {
+            throw new Error("Exchange value must be greater then 0.");
+        };
+        if (fromCurrency === toCurrency) {
+            throw new Error("Currencies to exchange must differ.");
+        };
+
+        const user = this.getUser(userId);
+        const sourceAccount = user.getAccount(fromCurrency);
+        if (amount > sourceAccount.balance) {
+            throw new Error("Insufficient funds in the account.");
+        };
+
+        const targetAccount = user.getAccount(toCurrency);
+        const exchangeFrom = sourceAccount.withdraw(
+            amount,
+            0,
+            OperationType.EXCHANGE_OUT,
+            { targetCurrency: toCurrency }
+        );
+        const convertedAmount = this.convertCurrencies(fromCurrency, toCurrency, amount);
+        const commission = convertedAmount * this.commissionRate;
+        this.addProfit(OperationType.EXCHANGE_IN, toCurrency, commission);
+        const netAmount = convertedAmount - commission;
+        const exchangeTo = targetAccount.deposit(
+            netAmount,
+            0,
+            OperationType.EXCHANGE_IN,
+            {
+                sourceCurrency: fromCurrency,
+                originalAmount: amount,
+                commission,
+                netAmount: netAmount
+            }
+        );
+        this.allOperations.push(exchangeFrom, exchangeTo);
+        return { exchangeFrom, exchangeTo };
+    };
+
+    private convertCurrencies(from: Currency, to: Currency, amount: number): number {
+        const valueInPLN = amount * this.exchangeRates[from];
+        return valueInPLN / this.exchangeRates[to];
     };
 };
